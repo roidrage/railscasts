@@ -1,11 +1,11 @@
 set :application, "railscasts.com"
-set :server_name, "192.168.2.106"
+set :server_name, "ec2-79-125-57-198.eu-west-1.compute.amazonaws.com"
 role :app, server_name
 role :web, server_name
 role :db,  server_name, :primary => true
 
-set :user, "cftuser"
-set :deploy_to, "/home/cftuser/#{application}"
+set :user, "deploy"
+set :deploy_to, "/srv/www/#{application}"
 set :deploy_via, :remote_cache
 set :use_sudo, false
 
@@ -14,27 +14,18 @@ set :repository, "git://github.com/mattmatt/railscasts.git"
 set :branch, "master"
 
 namespace :deploy do
-  # desc "Tell Passenger to restart."
-  # task :restart, :roles => :web do
-  #   run "touch #{deploy_to}/current/tmp/restart.txt" 
-  # end
+  desc "Tell Passenger to restart."
+  task :restart, :roles => :web do
+    run "touch #{deploy_to}/current/tmp/restart.txt" 
+  end
 
-  # desc "Do nothing on startup so we don't get a script/spin error."
-  # task :start do
-  #   puts "You may need to restart Apache."
-  # end
-
+  desc "Do nothing on startup so we don't get a script/spin error."
   task :start do
-    run "mongrel_rails cluster::start -C #{current_release}/config/mongrel_cluster.yml"
+    puts "You may need to restart Apache."
   end
-  
+
   task :stop do
-    run "mongrel_rails cluster::stop -C #{current_release}/config/mongrel_cluster.yml"
-  end
-  
-  task :restart do
-    stop
-    start
+    puts "You may need to stop Apache."
   end
   
   desc "Symlink extra configs and folders."
@@ -62,7 +53,7 @@ namespace :deploy do
   
   desc "Sync the public/assets directory."
   task :assets do
-    system "rsync -vr --exclude='.DS_Store' public/assets #{user}@#{application}:/var/www/apps/railscasts.com/shared/"
+    system "rsync -vr --exclude='.DS_Store' public/assets #{user}@#{application}:/srv/www/railscasts.com/shared/"
   end
 end
 
